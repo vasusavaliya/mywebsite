@@ -2,22 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Colorful Background</title>
+  <title>Welcome to My Website</title>
   <style>
+    /* Reset body margin and set height */
     body {
       margin: 0;
       height: 100vh;
-      background: linear-gradient(135deg, #ff6ec4, #7873f5, #4ade80);
-      background-size: 300% 300%;
-      animation: gradientMove 10s ease infinite;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-family: sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       color: white;
+      text-align: center;
+      
+      /* Animated Gradient Background */
+      background: linear-gradient(-45deg, #ff6ec4, #7873f5, #4ade80, #facc15);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
     }
 
-    @keyframes gradientMove {
+    /* Animation for gradient movement */
+    @keyframes gradient {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
@@ -25,11 +30,11 @@
 
     h1 {
       font-size: 3rem;
-      text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
     }
   </style>
 </head>
 <body>
-  <h1>Colorful Background!</h1>
+  <h1>Welcome to My Website</h1>
 </body>
 </html>
