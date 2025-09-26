@@ -1,31 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Virat Kohli</title>
+  <meta charset="UTF-8" />
+  <title>Simple Click Game</title>
   <style>
     body {
-      background-color: #f3f4f6;
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 50px;
+      background: #f0f4f8;
     }
-
-    img {
-      width: 300px;
-      height: auto;
-      border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-      margin-top: 20px;
+    #game-button {
+      padding: 20px 40px;
+      font-size: 24px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 5px 10px rgba(76, 175, 80, 0.4);
+      transition: background-color 0.3s ease;
     }
-
-    h1 {
-      color: #1f2937;
+    #game-button:hover {
+      background-color: #45a049;
+    }
+    #score, #time {
+      font-size: 28px;
+      margin: 20px 0;
+    }
+    #start-btn {
+      padding: 10px 25px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 30px;
     }
   </style>
 </head>
 <body>
-  <h1>Virat Kohli</h1>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/1/14/Virat_Kohli_2023.jpg" alt="Virat Kohli">
+
+  <h1>Click the Button Game</h1>
+  <div id="score">Score: 0</div>
+  <div id="time">Time Left: 10s</div>
+  <button id="game-button" disabled>Click me!</button>
+  <br />
+  <button id="start-btn">Start Game</button>
+
+  <script>
+    const gameBtn = document.getElementById('game-button');
+    const startBtn = document.getElementById('start-btn');
+    const scoreDisplay = document.getElementById('score');
+    const timeDisplay = document.getElementById('time');
+
+    let score = 0;
+    let timeLeft = 10;
+    let timer;
+
+    function updateScore() {
+      score++;
+      scoreDisplay.textContent = `Score: ${score}`;
+    }
+
+    function updateTime() {
+      timeLeft--;
+      timeDisplay.textContent = `Time Left: ${timeLeft}s`;
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        gameBtn.disabled = true;
+        alert(`Game Over! Your final score is ${score}.`);
+        startBtn.disabled = false;
+      }
+    }
+
+    startBtn.addEventListener('click', () => {
+      score = 0;
+      timeLeft = 10;
+      scoreDisplay.textContent = `Score: ${score}`;
+      timeDisplay.textContent = `Time Left: ${timeLeft}s`;
+      gameBtn.disabled = false;
+      startBtn.disabled = true;
+
+      timer = setInterval(updateTime, 1000);
+    });
+
+    gameBtn.addEventListener('click', () => {
+      if (!gameBtn.disabled) {
+        updateScore();
+      }
+    });
+  </script>
 </body>
 </html>
