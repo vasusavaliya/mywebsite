@@ -1,94 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Simple Click Game</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
-      background: #f0f4f8;
-    }
-    #game-button {
-      padding: 20px 40px;
-      font-size: 24px;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      box-shadow: 0 5px 10px rgba(76, 175, 80, 0.4);
-      transition: background-color 0.3s ease;
-    }
-    #game-button:hover {
-      background-color: #45a049;
-    }
-    #score, #time {
-      font-size: 28px;
-      margin: 20px 0;
-    }
-    #start-btn {
-      padding: 10px 25px;
-      font-size: 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 30px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Balance the Ball Game</title>
+<style>
+  body {
+    margin: 0;
+    background: linear-gradient(to bottom, #87ceeb, #f0f8ff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+  }
+
+  #game {
+    position: relative;
+    width: 400px;
+    height: 300px;
+    background: #654321;
+    border-radius: 15px;
+    box-shadow: 0 0 20px #222 inset;
+    overflow: visible;
+  }
+
+  #platform {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    width: 300px;
+    height: 20px;
+    background: #333;
+    border-radius: 10px;
+    transform-origin: center bottom;
+    transform: rotate(0deg);
+  }
+
+  #ball {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    background: radial-gradient(circle at 10px 10px, #f00, #800);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 5px 8px rgba(0,0,0,0.5);
+  }
+
+  #message {
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 20px;
+    color: #222;
+    font-weight: bold;
+    user-select: none;
+  }
+</style>
 </head>
 <body>
 
-  <h1>Click the Button Game</h1>
-  <div id="score">Score: 0</div>
-  <div id="time">Time Left: 10s</div>
-  <button id="game-button" disabled>Click me!</button>
-  <br />
-  <button id="start-btn">Start Game</button>
+<div id="game">
+  <div id="message">Use ← and → keys to balance the ball!</div>
+  <div id="platform"></div>
+  <div id="ball"></div>
+</div>
 
-  <script>
-    const gameBtn = document.getElementById('game-button');
-    const startBtn = document.getElementById('start-btn');
-    const scoreDisplay = document.getElementById('score');
-    const timeDisplay = document.getElementById('time');
+<script>
+  const platform = document.getElementById('platform');
+  const ball = document.getElementById('ball');
+  const message = document.getElementById('message');
 
-    let score = 0;
-    let timeLeft = 10;
-    let timer;
+  const gameWidth = 400;
+  const platformWidth = 300;
+  const ballRadius = 15;
 
-    function updateScore() {
-      score++;
-      scoreDisplay.textContent = `Score: ${score}`;
+  let platformAngle = 0; // degrees, between -15 and 15
+  let platformTiltSpeed = 1.5; // degrees per frame when key pressed
+  let maxTilt = 15;
+
+  let ballPosX = gameWidth / 2; // x-position of ball center relative to #game
+  let ballSpeedX = 0;
+  let gravity = 0.3;
+
+  let keys = {
+    left: false,
+    right: false,
+  };
+
+  let gameOver = false;
+
+  function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+  }
+
+  function update() {
+    if (gameOver) return;
+
+    // Adjust platform angle based on keys
+    if (keys.left) {
+      platformAngle -= platformTiltSpeed;
+    } else if (keys.right) {
+      platformAngle += platformTiltSpeed;
+    } else {
+      // Slowly return platform to flat
+      if (platformAngle > 0.1) platformAngle -= 0.5;
+      else if (platformAngle < -0.1) platformAngle += 0.5;
+      else platformAngle = 0;
+    }
+    platformAngle = clamp(platformAngle, -maxTilt, maxTilt);
+
+    platform.style.transform = `rotate(${platformAngle}deg)`;
+
+    // Calculate acceleration of ball based on platform angle
+    // Approximate acceleration = gravity * sin(angle)
+    let angleRad = platformAngle * Math.PI / 180;
+    let acceleration = gravity * Math.sin(angleRad);
+
+    // Update ball speed and position
+    ballSpeedX += acceleration;
+    ballSpeedX *= 0.98; // friction / air resistance
+    ballPosX += ballSpeedX;
+
+    // Clamp ball position to game boundaries (considering platform edges)
+    let leftEdge = (gameWidth - platformWidth) / 2 + ballRadius;
+    let rightEdge = (gameWidth + platformWidth) / 2 - ballRadius;
+
+    if (ballPosX < leftEdge || ballPosX > rightEdge) {
+      endGame();
+      return;
     }
 
-    function updateTime() {
-      timeLeft--;
-      timeDisplay.textContent = `Time Left: ${timeLeft}s`;
+    ball.style.left = `${ballPosX}px`;
 
-      if (timeLeft <= 0) {
-        clearInterval(timer);
-        gameBtn.disabled = true;
-        alert(`Game Over! Your final score is ${score}.`);
-        startBtn.disabled = false;
-      }
-    }
+    requestAnimationFrame(update);
+  }
 
-    startBtn.addEventListener('click', () => {
-      score = 0;
-      timeLeft = 10;
-      scoreDisplay.textContent = `Score: ${score}`;
-      timeDisplay.textContent = `Time Left: ${timeLeft}s`;
-      gameBtn.disabled = false;
-      startBtn.disabled = true;
+  function endGame() {
+    gameOver = true;
+    message.textContent = 'Game Over! Refresh to play again.';
+  }
 
-      timer = setInterval(updateTime, 1000);
-    });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') keys.left = true;
+    if (e.key === 'ArrowRight') keys.right = true;
+  });
 
-    gameBtn.addEventListener('click', () => {
-      if (!gameBtn.disabled) {
-        updateScore();
-      }
-    });
-  </script>
+  window.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowLeft') keys.left = false;
+    if (e.key === 'ArrowRight') keys.right = false;
+  });
+
+  // Initialize ball position
+  ball.style.left = `${ballPosX}px`;
+
+  update(); // start the game loop
+</script>
+
 </body>
 </html>
