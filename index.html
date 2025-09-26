@@ -2,39 +2,153 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Welcome to My Website</title>
+  <title>Shoe Store</title>
   <style>
-    /* Reset body margin and set height */
-    body {
+    * {
+      box-sizing: border-box;
       margin: 0;
-      height: 100vh;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f8f9fa;
+      color: #333;
+    }
+
+    header {
+      background-color: #111;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    nav {
+      background-color: #444;
       display: flex;
       justify-content: center;
-      align-items: center;
-      font-family: 'Segoe UI', sans-serif;
+      padding: 10px 0;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      color: #f0c14b;
+    }
+
+    .products {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 40px 20px;
+      gap: 30px;
+    }
+
+    .product {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 250px;
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .product:hover {
+      transform: scale(1.05);
+    }
+
+    .product img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .product h3 {
+      margin: 15px 0 10px;
+    }
+
+    .product p {
+      color: #555;
+    }
+
+    .price {
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .btn {
+      background-color: #111;
+      color: white;
+      padding: 10px 15px;
+      text-decoration: none;
+      border-radius: 5px;
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      background-color: #333;
+    }
+
+    footer {
+      background-color: #222;
       color: white;
       text-align: center;
-      
-      /* Animated Gradient Background */
-      background: linear-gradient(-45deg, #ff6ec4, #7873f5, #4ade80, #facc15);
-      background-size: 400% 400%;
-      animation: gradient 15s ease infinite;
-    }
-
-    /* Animation for gradient movement */
-    @keyframes gradient {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    h1 {
-      font-size: 3rem;
-      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
+      padding: 20px;
+      margin-top: 40px;
     }
   </style>
 </head>
 <body>
-  <h1>Welcome to My Website</h1>
+
+  <header>
+    <h1>StepUp Shoe Store</h1>
+    <p>Your one-stop shop for the best shoes</p>
+  </header>
+
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">Men</a>
+    <a href="#">Women</a>
+    <a href="#">Kids</a>
+    <a href="#">Contact</a>
+  </nav>
+
+  <section class="products">
+    <div class="product">
+      <img src="https://via.placeholder.com/250x200.png?text=Running+Shoe" alt="Shoe 1">
+      <h3>Running Shoe</h3>
+      <p>Lightweight and comfortable for daily runs.</p>
+      <p class="price">$79.99</p>
+      <a href="#" class="btn">Buy Now</a>
+    </div>
+
+    <div class="product">
+      <img src="https://via.placeholder.com/250x200.png?text=Sneakers" alt="Shoe 2">
+      <h3>Classic Sneakers</h3>
+      <p>Perfect for casual wear and comfort.</p>
+      <p class="price">$59.99</p>
+      <a href="#" class="btn">Buy Now</a>
+    </div>
+
+    <div class="product">
+      <img src="https://via.placeholder.com/250x200.png?text=Formal+Shoe" alt="Shoe 3">
+      <h3>Formal Leather Shoe</h3>
+      <p>Elegant shoes for business or events.</p>
+      <p class="price">$99.99</p>
+      <a href="#" class="btn">Buy Now</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 StepUp Shoe Store. All rights reserved.</p>
+  </footer>
+
 </body>
 </html>
