@@ -3,162 +3,188 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Balance the Ball Game</title>
+<title>Simple Shooting Game</title>
 <style>
   body {
     margin: 0;
-    background: linear-gradient(to bottom, #87ceeb, #f0f8ff);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    background: #222;
     overflow: hidden;
     font-family: Arial, sans-serif;
+    color: white;
+    user-select: none;
   }
-
   #game {
     position: relative;
     width: 400px;
-    height: 300px;
-    background: #654321;
-    border-radius: 15px;
-    box-shadow: 0 0 20px #222 inset;
-    overflow: visible;
+    height: 600px;
+    margin: 20px auto;
+    background: linear-gradient(#000, #444);
+    border: 3px solid #555;
+    overflow: hidden;
   }
-
-  #platform {
+  #shooter {
     position: absolute;
-    bottom: 40px;
+    bottom: 20px;
     left: 50%;
-    width: 300px;
+    width: 50px;
     height: 20px;
-    background: #333;
-    border-radius: 10px;
-    transform-origin: center bottom;
-    transform: rotate(0deg);
-  }
-
-  #ball {
-    position: absolute;
-    bottom: 60px;
-    left: 50%;
-    width: 30px;
-    height: 30px;
-    background: radial-gradient(circle at 10px 10px, #f00, #800);
-    border-radius: 50%;
+    background: #0f0;
+    border-radius: 5px;
     transform: translateX(-50%);
-    box-shadow: 0 5px 8px rgba(0,0,0,0.5);
   }
-
-  #message {
+  .bullet {
     position: absolute;
-    top: 10px;
-    width: 100%;
+    width: 5px;
+    height: 15px;
+    background: yellow;
+    border-radius: 3px;
+  }
+  .target {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: red;
+    border-radius: 50%;
+  }
+  #scoreboard {
     text-align: center;
+    margin-top: 10px;
     font-size: 20px;
-    color: #222;
-    font-weight: bold;
-    user-select: none;
   }
 </style>
 </head>
 <body>
 
 <div id="game">
-  <div id="message">Use ← and → keys to balance the ball!</div>
-  <div id="platform"></div>
-  <div id="ball"></div>
+  <div id="shooter"></div>
 </div>
+<div id="scoreboard">Score: 0</div>
 
 <script>
-  const platform = document.getElementById('platform');
-  const ball = document.getElementById('ball');
-  const message = document.getElementById('message');
+  const game = document.getElementById('game');
+  const shooter = document.getElementById('shooter');
+  const scoreboard = document.getElementById('scoreboard');
 
-  const gameWidth = 400;
-  const platformWidth = 300;
-  const ballRadius = 15;
+  const gameWidth = game.clientWidth;
+  const gameHeight = game.clientHeight;
 
-  let platformAngle = 0; // degrees, between -15 and 15
-  let platformTiltSpeed = 1.5; // degrees per frame when key pressed
-  let maxTilt = 15;
+  let shooterX = gameWidth / 2;
+  const shooterSpeed = 15;
+  let score = 0;
 
-  let ballPosX = gameWidth / 2; // x-position of ball center relative to #game
-  let ballSpeedX = 0;
-  let gravity = 0.3;
+  let bullets = [];
+  let targets = [];
 
-  let keys = {
+  // Move shooter with arrow keys
+  const keys = {
     left: false,
     right: false,
+    space: false,
   };
 
-  let gameOver = false;
+  window.addEventListener('keydown', e => {
+    if (e.code === 'ArrowLeft') keys.left = true;
+    if (e.code === 'ArrowRight') keys.right = true;
+    if (e.code === 'Space') keys.space = true;
+  });
 
-  function clamp(value, min, max) {
-    return Math.min(Math.max(value, min), max);
+  window.addEventListener('keyup', e => {
+    if (e.code === 'ArrowLeft') keys.left = false;
+    if (e.code === 'ArrowRight') keys.right = false;
+    if (e.code === 'Space') keys.space = false;
+  });
+
+  // Create a bullet at the shooter position
+  function shoot() {
+    const bullet = document.createElement('div');
+    bullet.classList.add('bullet');
+    bullet.style.left = shooterX + 'px';
+    bullet.style.bottom = '40px';
+    game.appendChild(bullet);
+    bullets.push({el: bullet, x: shooterX, y: 40});
   }
 
+  // Create targets falling from the top randomly
+  function createTarget() {
+    const target = document.createElement('div');
+    target.classList.add('target');
+    const x = Math.random() * (gameWidth - 40);
+    target.style.left = x + 'px';
+    target.style.top = '0px';
+    game.appendChild(target);
+    targets.push({el: target, x: x, y: 0, speed: 2 + Math.random() * 2});
+  }
+
+  // Update game elements positions
   function update() {
-    if (gameOver) return;
-
-    // Adjust platform angle based on keys
-    if (keys.left) {
-      platformAngle -= platformTiltSpeed;
-    } else if (keys.right) {
-      platformAngle += platformTiltSpeed;
-    } else {
-      // Slowly return platform to flat
-      if (platformAngle > 0.1) platformAngle -= 0.5;
-      else if (platformAngle < -0.1) platformAngle += 0.5;
-      else platformAngle = 0;
+    // Move shooter
+    if (keys.left && shooterX > 25) {
+      shooterX -= shooterSpeed;
     }
-    platformAngle = clamp(platformAngle, -maxTilt, maxTilt);
+    if (keys.right && shooterX < gameWidth - 25) {
+      shooterX += shooterSpeed;
+    }
+    shooter.style.left = shooterX + 'px';
 
-    platform.style.transform = `rotate(${platformAngle}deg)`;
-
-    // Calculate acceleration of ball based on platform angle
-    // Approximate acceleration = gravity * sin(angle)
-    let angleRad = platformAngle * Math.PI / 180;
-    let acceleration = gravity * Math.sin(angleRad);
-
-    // Update ball speed and position
-    ballSpeedX += acceleration;
-    ballSpeedX *= 0.98; // friction / air resistance
-    ballPosX += ballSpeedX;
-
-    // Clamp ball position to game boundaries (considering platform edges)
-    let leftEdge = (gameWidth - platformWidth) / 2 + ballRadius;
-    let rightEdge = (gameWidth + platformWidth) / 2 - ballRadius;
-
-    if (ballPosX < leftEdge || ballPosX > rightEdge) {
-      endGame();
-      return;
+    // Shoot bullet (limit firing rate)
+    if (keys.space && !shoot.lastShot || (Date.now() - shoot.lastShot > 300)) {
+      shoot();
+      shoot.lastShot = Date.now();
     }
 
-    ball.style.left = `${ballPosX}px`;
+    // Move bullets up
+    bullets.forEach((bullet, i) => {
+      bullet.y += 8;
+      if (bullet.y > gameHeight) {
+        bullet.el.remove();
+        bullets.splice(i, 1);
+      } else {
+        bullet.el.style.bottom = bullet.y + 'px';
+      }
+    });
+
+    // Move targets down
+    targets.forEach((target, i) => {
+      target.y += target.speed;
+      if (target.y > gameHeight) {
+        // Remove target if it falls past bottom
+        target.el.remove();
+        targets.splice(i, 1);
+      } else {
+        target.el.style.top = target.y + 'px';
+      }
+    });
+
+    // Check collisions (bullet with target)
+    bullets.forEach((bullet, bi) => {
+      targets.forEach((target, ti) => {
+        if (
+          bullet.x > target.x - 10 &&
+          bullet.x < target.x + 40 + 10 &&
+          bullet.y > gameHeight - target.y - 40 - 10 &&
+          bullet.y < gameHeight - target.y + 10
+        ) {
+          // Collision detected
+          target.el.remove();
+          target.el.style.display = 'none';
+          targets.splice(ti, 1);
+
+          bullet.el.remove();
+          bullets.splice(bi, 1);
+
+          score += 10;
+          scoreboard.textContent = `Score: ${score}`;
+        }
+      });
+    });
 
     requestAnimationFrame(update);
   }
 
-  function endGame() {
-    gameOver = true;
-    message.textContent = 'Game Over! Refresh to play again.';
-  }
+  // Create targets every 1.5 seconds
+  setInterval(createTarget, 1500);
 
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') keys.left = true;
-    if (e.key === 'ArrowRight') keys.right = true;
-  });
-
-  window.addEventListener('keyup', (e) => {
-    if (e.key === 'ArrowLeft') keys.left = false;
-    if (e.key === 'ArrowRight') keys.right = false;
-  });
-
-  // Initialize ball position
-  ball.style.left = `${ballPosX}px`;
-
-  update(); // start the game loop
+  update();
 </script>
 
 </body>
